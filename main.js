@@ -1,8 +1,9 @@
-const size = 20
-const width = 20
+const size = 40
+const width = 40
 const height = 20
 
 let gameStart = false
+let refleshRate = 20
 // これを外に出しておくべきだというのはなんとなく気持ちはわかる
 let map = []
 for (let y = 0; y < height + 2; y++) {
@@ -38,7 +39,11 @@ for (let y = 0; y < height + 2; y++) {
     }
 }
 
-
+// この関数で全ループを回さなくて，ほりたいところだけ持ってくるようにしたら，
+// 流石にもうちょっと早くなりそうになるんだけど，それをやるには，結構頭を使う必要がある
+// そのため一旦断念ということで
+// というか，ここの browzer を使わずに，適当な python server とかでたてれば，
+// 少なくともこちらのブラウザには影響がないのでそれでいいのではないかという感じはある
 const showMap = () => {
     borderWidth = size / 30 + 'px'
     // 全く必要はないんだけど，文字列を掛け算したりしたらどうなるんだろうか
@@ -141,15 +146,15 @@ const dig = async () => {
             }
             if (action) {
                 //digTarget.push([x,y]) //push だと頭に入ってしまって面白くない
-                await new Promise(r => setTimeout(r, 20))
+                showMap()
+                await new Promise(r => setTimeout(r, refleshRate))
                 digTarget.unshift([x, y])
-                //showMap()
             }
             // いやこの処理書くだけで，掘れるだけ掘るって感じの処理にするのマジで天才すぎだろ
             break;
 
 
-            o            // ここで break するならなぜ while で回したんだろうか・・・
+            // ここで break するならなぜ while で回したんだろうか・・・
             // 浅はかな私にはわからない深い理由があったのかもしれない
             // もっとシンプルに描ける可能性もあるこということを覚えておこう
 
@@ -176,7 +181,7 @@ const init = () => {
             tile.style.height = `${size}px`
             tile.style.top = `${size * (y - 1)}px`
             tile.style.left = `${size * (x - 1)}px`
-            tile.style.backgroundColor = '#0ac'
+            tile.style.backgroundColor = '#8cf'
             tile.style.border = '1px solid #000'
             tile.style.boxSizing = 'border-box'
             // この代入方法で，勝手に辞書型に登録されるの，js は便利だと感じるくない？
@@ -186,17 +191,26 @@ const init = () => {
         }
     }
     document.body.appendChild(container)
+    /*
     const button = document.getElementById('start')
     button.onclick = (e) => {
+        e.preventDefault()
         gameStart = true
+        console.log(gameStart)
+        dig()
     }
+        */
 }
 
 window.onload = () => {
     init()
-    console.log('start', start);
-    if (gameStart) {
-        dig()
-        showMap()
-    }
+    //setInterval なら回るが，timeout だと回らないというクソ仕様
+    //setInterval(() => {
+    //    console.log(gameStart);
+    //}, 10)
+    //if (gameStart) {
+    //console.log('gamestart', gameStart);
+    dig()
+    showMap()
+   // }
 }
